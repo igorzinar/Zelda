@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import './App.css'
+import useMovement from './useMovement'
 
 export default function App() {
   const canvasRef = useRef(null)
@@ -7,55 +8,30 @@ export default function App() {
   const linkUpRef = useRef(null)
   const linkRightRef = useRef(null)
   const linkLeftRef = useRef(null)
-  const [x, setX] = useState(0)
-  const [y, setY] = useState(0)
-  const [direction, setDirection] = useState('down')
+  const { x, y, direction, move } = useMovement()
 
-  // height and width of canvas
+  // set the height and width of canvas
   useEffect(() => {
     const context = canvasRef.current.getContext('2d')
     context.canvas.height = window.innerHeight
     context.canvas.width = window.innerWidth
   }, [])
 
-  // move the box when x or y changed
+  // move the box if x or y changes
   useEffect(() => {
     const context = canvasRef.current.getContext('2d')
-    context.clearRect(0, 0, window.innerHeight, window.innerWidth)
-    //context.fillRect(x, y, 100, 100)
+    context.clearRect(0, 0, window.innerWidth, window.innerHeight)
+    // context.fillRect(x, y, 100, 100);
 
     let theLinkRef
     if (direction === 'down') theLinkRef = linkDownRef
     if (direction === 'up') theLinkRef = linkUpRef
     if (direction === 'left') theLinkRef = linkLeftRef
     if (direction === 'right') theLinkRef = linkRightRef
+
     context.drawImage(theLinkRef.current, x, y)
   }, [x, y])
 
-  // add event listener to window to listen arrow keys
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown)
-
-    function handleKeyDown(e) {
-      if (e.key === 'ArrowUp') move('up')
-      if (e.key === 'ArrowDown') move('down')
-      if (e.key === 'ArrowLeft') move('left')
-      if (e.key === 'ArrowRight') move('right')
-    }
-
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
-  function move(dir) {
-    setDirection(dir)
-    if (dir === 'up') setY((y) => y - 20)
-
-    if (dir === 'down') setY((y) => y + 20)
-
-    if (dir === 'left') setX((x) => x - 20)
-
-    if (dir === 'right') setX((x) => x + 20)
-  }
   return (
     <div className="app">
       <canvas ref={canvasRef} />
